@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .chat-box {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+            border-radius: 5px;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+            font-weight: bold;
+        }
+        .bot-message {
+            text-align: left;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chat with Bot</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="user-query" placeholder="Ask me anything...">
+            <button onclick="sendQuery()">Ask</button>
+        </div>
+    </div>
+
+    <script>
+        function sendQuery() {
+            const userQuery = document.getElementById('user-query').value;
+            if (userQuery.trim() === '') {
+                return;
+            }
+
+            // Display user message in the chat box
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="message user-message">You: ${userQuery}</div>`;
+
+            // Clear the input field
+            document.getElementById('user-query').value = '';
+
+            // Send user query to the backend
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `query=${encodeURIComponent(userQuery)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display bot response in the chat box
+                chatBox.innerHTML += `<div class="message bot-message">Bot: ${data.response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
